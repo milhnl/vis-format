@@ -26,6 +26,7 @@ end
 
 local formatters = nil
 formatters = {
+  csharp = stdio_formatter('dotnet csharpier'),
   go = stdio_formatter('gofmt'),
   lua = {
     pick = function(win)
