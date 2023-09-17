@@ -20,11 +20,14 @@ Press `=` to format the whole file.
 
 Currently, the following formatters are supported out-of-the-box.
 
-- `rust`: `rustfmt`
 - `go`: `gofmt`
+- `lua`: [StyLua](https://github.com/JohnnyMorganz/StyLua) and
+  [LuaFormatter](https://github.com/Koihik/LuaFormatter), depending on which
+  config file is in the working directory.
 - `markdown`: `prettier` with `--prose-wrap` enabled if `colorcolumn` is set.
+- `rust`: `rustfmt`
 
-I'm working on some heuristics for detecting which formatter to use for
+I'm working on some more heuristics for detecting which formatter to use for
 languages without a 'blessed' formatter. In the meantime, this is how you add
 the ones you want to use:
 

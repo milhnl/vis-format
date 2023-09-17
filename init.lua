@@ -23,8 +23,21 @@ local stdio_formatter = function(cmd, options)
   }
 end
 
-local formatters = {
+
+local formatters = nil
+formatters = {
   go = stdio_formatter('gofmt'),
+  lua = {
+    pick = function(win)
+      local status, out, err = vis:pipe(
+        win.file,
+        { start = 0, finish = win.file.size },
+        'test -e .lua-format && echo luaformatter || echo stylua'
+      )
+      return formatters[out:gsub('\n$', '')]
+    end,
+  },
+  luaformatter = stdio_formatter('lua-format'),
   markdown = stdio_formatter(function(win)
     if win.options and win.options.colorcolumn ~= 0 then
       return 'prettier --parser markdown --prose-wrap always --print-width '
@@ -34,6 +47,19 @@ local formatters = {
     end
   end, { ranged = false }),
   rust = stdio_formatter('rustfmt'),
+  stylua = stdio_formatter(function(win, range)
+    if range and (range.start ~= 0 or range.finish ~= win.file.size) then
+      return 'stylua -s --range-start '
+        .. range.start
+        .. ' --range-end '
+        .. range.finish
+        .. ' --stdin-filepath '
+        .. win.file.path
+        .. ' -'
+    else
+      return 'stylua -s --stdin-filepath ' .. win.file.path .. ' -'
+    end
+  end),
 }
 
 local getwinforfile = function(file)
@@ -51,6 +77,9 @@ local apply = function(file, range, pos)
     range = nil
   end
   local formatter = formatters[win.syntax]
+  if formatter and formatter.pick then
+    formatter = formatter.pick(win)
+  end
   if formatter == nil then
     vis:info('No formatter for ' .. win.syntax)
     return pos
