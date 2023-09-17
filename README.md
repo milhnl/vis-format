@@ -26,6 +26,7 @@ Currently, the following formatters are supported out-of-the-box.
   config file is in the working directory.
 - `markdown`: `prettier` with `--prose-wrap` enabled if `colorcolumn` is set.
 - `rust`: `rustfmt`
+- `text`: `fmt` like the `vis` default, but with width set if available
 
 I'm working on some more heuristics for detecting which formatter to use for
 languages without a 'blessed' formatter. In the meantime, this is how you add

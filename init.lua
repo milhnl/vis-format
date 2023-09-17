@@ -60,6 +60,13 @@ formatters = {
       return 'stylua -s --stdin-filepath ' .. win.file.path .. ' -'
     end
   end),
+  text = stdio_formatter(function(win)
+    if win.options and win.options.colorcolumn ~= 0 then
+      return 'fmt -w ' .. (win.options.colorcolumn - 1)
+    else
+      return 'fmt'
+    end
+  end, { ranged = false }),
 }
 
 local getwinforfile = function(file)
