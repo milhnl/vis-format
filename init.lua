@@ -23,6 +23,13 @@ local stdio_formatter = function(cmd, options)
   }
 end
 
+local with_filename = function(win, option)
+  if win.file.path then
+    return option .. "'" .. win.file.path:gsub("'", "\\'") .. "'"
+  else
+    return ''
+  end
+end
 
 local formatters = nil
 formatters = {
@@ -54,11 +61,10 @@ formatters = {
         .. range.start
         .. ' --range-end '
         .. range.finish
-        .. ' --stdin-filepath '
-        .. win.file.path
+        .. with_filename(win, '--stdin-filepath ')
         .. ' -'
     else
-      return 'stylua -s --stdin-filepath ' .. win.file.path .. ' -'
+      return 'stylua -s ' .. with_filename(win, '--stdin-filepath ') .. ' -'
     end
   end),
   text = stdio_formatter(function(win)
@@ -105,4 +111,5 @@ return {
   formatters = formatters,
   apply = apply,
   stdio_formatter = stdio_formatter,
+  with_filename = with_filename,
 }

@@ -39,6 +39,8 @@ the ones you want to use:
 
 ### Advanced (and ranged) usage
 
+#### `stdio_formatter`
+
 The `stdio_formatter` function wraps the command to produce something like
 this:
 
@@ -59,6 +61,16 @@ ranges of text. Configuring that looks like this:
       return 'stylua -s --range-start ' .. range.start .. ' --range-end '
         .. range.finish .. ' -'
     end)
+
+#### `with_filename`
+
+Most formatters take a path for where `stdin` would be. If the file has a path
+`with_filename` concatenates the option and the shell-escaped path. Note that
+it does not add any spaces to separate options/arguments.
+
+    stdio_formatter(function(win)
+      return 'shfmt ' .. with_filename(win, '--filename ') .. ' -'
+    end, { ranged = false })
 
 ### Bugs
 
