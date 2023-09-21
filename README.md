@@ -20,6 +20,7 @@ Press `=` to format the whole file.
 
 Currently, the following formatters are supported out-of-the-box.
 
+- `bash`: [shfmt](https://github.com/mvdan/sh)
 - `csharp`: [CSharpier](https://csharpier.com/). Although
   [dotnet-format](https://github.com/dotnet/format) is the 'default' formatter
   for dotnet, it does not support formatting stdin (and does not break lines).

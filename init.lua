@@ -33,6 +33,9 @@ end
 
 local formatters = nil
 formatters = {
+  bash = stdio_formatter(function(win)
+    return 'shfmt ' .. with_filename(win, '--filename ') .. ' -'
+  end),
   csharp = stdio_formatter('dotnet csharpier'),
   go = stdio_formatter('gofmt'),
   lua = {
