@@ -38,7 +38,11 @@ the ones you want to use:
 
     format.formatters.html = format.stdio_formatter("prettier --parser html")
 
-### Advanced (and ranged) usage
+### Advanced usage
+
+The following methods and tables are fields of the table that is returned by
+`require('vis-format')` (e.g. `format`). You can use them to extend or
+configure `vis-format`.
 
 #### `stdio_formatter`
 
