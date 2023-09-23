@@ -1,16 +1,16 @@
 local stdio_formatter = function(cmd, options)
   local apply = function(win, range, pos)
     local command = type(cmd) == 'function' and cmd(win, range, pos) or cmd
-    local status, out, err =
-      vis:pipe(win.file, { start = 0, finish = win.file.size }, command)
+    local size = win.file.size
+    local all = { start = 0, finish = size }
+    local status, out, err = vis:pipe(win.file, all, command)
     if status == 0 then
       if range then
-        local size = win.file.size
         local start, finish = range.start, range.finish
         win.file:delete(range)
         win.file:insert(start, out:sub(start + 1, finish + (out:len() - size)))
       else
-        win.file:delete(0, win.file.size)
+        win.file:delete(all)
         win.file:insert(0, out)
       end
     else
