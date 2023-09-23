@@ -51,7 +51,7 @@ this:
 
     {
         apply = function(win, range, pos) end,
-        options = { ranged = false }
+        options = { ranged = false, check_same = nil }
     }
 
 The command given can also be a function, which is expected to return a string,
@@ -76,6 +76,13 @@ it does not add any spaces to separate options/arguments.
     stdio_formatter(function(win)
       return 'shfmt ' .. with_filename(win, '--filename ') .. ' -'
     end, { ranged = false })
+
+#### `options`
+
+- `options.check_same` (`boolean|number`) — After formatting, to avoid updating
+  the file, `vis-format` can compare the old and the new. If this is set to a
+  number, that's the maximum size of the file for which it is enabled. This
+  option is also available in the per-formatter options.
 
 ### Bugs
 

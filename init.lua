@@ -1,10 +1,19 @@
+local global_options = {
+  check_same = true,
+}
+
 local stdio_formatter = function(cmd, options)
   local apply = function(win, range, pos)
     local command = type(cmd) == 'function' and cmd(win, range, pos) or cmd
     local size = win.file.size
+    local check_same = (options and options.check_same ~= nil)
+        and options.check_same
+      or global_options.check_same
+    local check = check_same == true
+      or (type(check_same) == 'number' and check_same >= size)
     local all = { start = 0, finish = size }
     local status, out, err = vis:pipe(win.file, all, command)
-    if status == 0 then
+    if status == 0 and (not check or win.file:content(all) ~= out) then
       if range then
         local start, finish = range.start, range.finish
         win.file:delete(range)
@@ -13,7 +22,7 @@ local stdio_formatter = function(cmd, options)
         win.file:delete(all)
         win.file:insert(0, out)
       end
-    else
+    elseif status ~= 0 then
       vis:message(err)
     end
   end
@@ -112,6 +121,7 @@ end
 
 return {
   formatters = formatters,
+  options = globalOptions,
   apply = apply,
   stdio_formatter = stdio_formatter,
   with_filename = with_filename,
