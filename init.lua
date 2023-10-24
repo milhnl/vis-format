@@ -60,10 +60,12 @@ formatters = {
   luaformatter = stdio_formatter('lua-format'),
   markdown = stdio_formatter(function(win)
     if win.options and win.options.colorcolumn ~= 0 then
-      return 'prettier --parser markdown --prose-wrap always --print-width '
-        .. (win.options.colorcolumn - 1)
+      return 'prettier --parser markdown --prose-wrap always '
+        .. ('--print-width ' .. (win.options.colorcolumn - 1) .. ' ')
+        .. with_filename(win, '--stdin-filepath ')
     else
-      return 'prettier --parser markdown'
+      return 'prettier --parser markdown '
+        .. with_filename(win, '--stdin-filepath ')
     end
   end, { ranged = false }),
   rust = stdio_formatter('rustfmt'),
