@@ -40,7 +40,7 @@ local with_filename = function(win, option)
   end
 end
 
-local formatters = nil
+local formatters = {}
 formatters = {
   bash = stdio_formatter(function(win)
     return 'shfmt ' .. with_filename(win, '--filename ') .. ' -'
