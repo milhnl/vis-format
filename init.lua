@@ -98,8 +98,9 @@ local getwinforfile = function(file)
   end
 end
 
-local apply = function(file, range, pos)
-  local win = getwinforfile(file)
+local apply = function(file_or_keys, range, pos)
+  local win = type(file_or_keys) ~= 'string' and getwinforfile(file_or_keys)
+    or vis.win
   pos = pos or win.selection.pos
   if range and range.start == 0 and range.finish == win.file.size then
     range = nil
@@ -110,15 +111,15 @@ local apply = function(file, range, pos)
   end
   if formatter == nil then
     vis:info('No formatter for ' .. win.syntax)
-    return pos
+    return type(file_or_keys) ~= 'string' and pos or 0
   end
   if range ~= nil and not formatter.options.ranged then
     vis:info('Formatter for ' .. win.syntax .. ' does not support ranges')
-    return pos
+    return type(file_or_keys) ~= 'string' and pos or 0
   end
   pos = formatter.apply(win, range) or pos
   vis:insert('') -- redraw and friends don't work
-  return pos
+  return type(file_or_keys) ~= 'string' and pos or 0
 end
 
 return {
