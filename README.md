@@ -58,13 +58,20 @@ The command given can also be a function, which is expected to return a string,
 which is then used as a command. This allows you to use the given range, or
 options from `win`. `ranged` is automatically set to true in this case.
 
-Apart from mapping `=` in normal mode, you can also define an operator to
-format blocks of code/text. This will require a formatter that can work with
-ranges of text. Configuring that looks like this:
+Apart from mapping `vis-format` in normal mode, you can also define an operator
+(with `vis:operator_new`) to format ranges of code/text. This will require a
+formatter that can work with ranges of text. Configuring that looks like this:
 
+    -- Add a formatter that can use a range
     format.formatters.lua = format.stdio_formatter(function(win, range, pos)
       return 'stylua -s --range-start ' .. range.start .. ' --range-end '
         .. range.finish .. ' -'
+    end)
+
+    -- Bind it to keys
+    vis:operator_new('=', format) -- this'll handle ranges
+    vis:map(vis.modes.NORMAL, '=', function() -- this'll format whole files
+      format(vis.win.file, nil, vis.win.selection.pos)
     end)
 
 #### `with_filename`
