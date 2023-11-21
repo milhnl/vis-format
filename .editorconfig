@@ -7,4 +7,4 @@ quote_type = single
 [*.md]
 max_line_length = 79
 indent_style = space
-indent_size = 4
+indent_size = 2
