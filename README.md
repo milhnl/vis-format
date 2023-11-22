@@ -69,9 +69,9 @@ formatter that can work with ranges of text. Configuring that looks like this:
     end)
 
     -- Bind it to keys
-    vis:operator_new('=', format) -- this'll handle ranges
+    vis:operator_new('=', format.apply) -- this'll handle ranges
     vis:map(vis.modes.NORMAL, '=', function() -- this'll format whole files
-      format(vis.win.file, nil, vis.win.selection.pos)
+      format.apply(vis.win.file, nil, vis.win.selection.pos)
     end)
 
 #### `with_filename`
