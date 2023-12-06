@@ -14,7 +14,9 @@ local stdio_formatter = function(cmd, options)
     local all = { start = 0, finish = size }
     local status, out, err = vis:pipe(win.file, all, command)
     if status == 0 and (not check or win.file:content(all) ~= out) then
-      if range then
+      if out == nil or out == '' then
+        vis:info("No output from formatter")
+      elseif range then
         local start, finish = range.start, range.finish
         win.file:delete(range)
         win.file:insert(start, out:sub(start + 1, finish + (out:len() - size)))
