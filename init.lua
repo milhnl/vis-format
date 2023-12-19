@@ -4,28 +4,26 @@ local global_options = {
 
 local stdio_formatter = function(cmd, options)
   local apply = function(win, range, pos)
-    local command = type(cmd) == 'function' and cmd(win, range, pos) or cmd
     local size = win.file.size
+    local all = { start = 0, finish = size }
+    if range == nil then
+      range = all
+    end
+    local command = type(cmd) == 'function' and cmd(win, range, pos) or cmd
     local check_same = (options and options.check_same ~= nil)
         and options.check_same
       or global_options.check_same
     local check = check_same == true
       or (type(check_same) == 'number' and check_same >= size)
-    local all = { start = 0, finish = size }
     local status, out, err = vis:pipe(win.file, all, command)
-    if status == 0 and (not check or win.file:content(all) ~= out) then
-      if out == nil or out == '' then
-        vis:info("No output from formatter")
-      elseif range then
-        local start, finish = range.start, range.finish
-        win.file:delete(range)
-        win.file:insert(start, out:sub(start + 1, finish + (out:len() - size)))
-      else
-        win.file:delete(all)
-        win.file:insert(0, out)
-      end
-    elseif status ~= 0 then
+    if status ~= 0 then
       vis:message(err)
+    elseif out == nil or out == '' then
+      vis:info('No output from formatter')
+    elseif not check or win.file:content(all) ~= out then
+      local start, finish = range.start, range.finish
+      win.file:delete(range)
+      win.file:insert(start, out:sub(start + 1, finish + (out:len() - size)))
     end
     return pos
   end
@@ -111,9 +109,6 @@ local apply = function(file_or_keys, range, pos)
     or function()
       return 0
     end
-  if range and range.start == 0 and range.finish == win.file.size then
-    range = nil
-  end
   pos = pos or win.selection.pos
   local formatter = formatters[win.syntax]
   if formatter and formatter.pick then
@@ -123,7 +118,12 @@ local apply = function(file_or_keys, range, pos)
     vis:info('No formatter for ' .. win.syntax)
     return ret()
   end
-  if range ~= nil and not formatter.options.ranged then
+  if
+    range ~= nil
+    and not formatter.options.ranged
+    and range.start ~= 0
+    and range.finish ~= win.file.size
+  then
     vis:info('Formatter for ' .. win.syntax .. ' does not support ranges')
     return ret()
   end
