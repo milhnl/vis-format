@@ -77,7 +77,7 @@ formatters = {
         .. range.start
         .. ' --range-end '
         .. range.finish
-        .. with_filename(win, '--stdin-filepath ')
+        .. with_filename(win, ' --stdin-filepath ')
         .. ' -'
     else
       return 'stylua -s ' .. with_filename(win, '--stdin-filepath ') .. ' -'
