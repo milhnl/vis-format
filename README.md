@@ -24,6 +24,9 @@ Currently, the following formatters are supported out-of-the-box.
 - `csharp`: [CSharpier](https://csharpier.com/). Although
   [dotnet-format](https://github.com/dotnet/format) is the 'default' formatter
   for dotnet, it does not support formatting stdin (and does not break lines).
+- `git-commit`: Actually `diff` with an extra check, as that's how
+  `vis.ftdetect` ends up labeling it. Uses `fmt -w` and some glue code to
+  reformat the commit body, but not the summary and comments.
 - `go`: `gofmt`
 - `lua`: [StyLua](https://github.com/JohnnyMorganz/StyLua) and
   [LuaFormatter](https://github.com/Koihik/LuaFormatter), depending on which

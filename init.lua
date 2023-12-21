@@ -62,6 +62,52 @@ formatters = {
     return 'shfmt ' .. with_filename(win, '--filename ') .. ' -'
   end),
   csharp = stdio_formatter('dotnet csharpier'),
+  diff = {
+    pick = function(win)
+      for _, pattern in ipairs(vis.ftdetect.filetypes['git-commit'].ext) do
+        if ((win.file.name or ''):match('[^/]+$') or ''):match(pattern) then
+          return formatters['git-commit']
+        end
+      end
+    end,
+  },
+  ['git-commit'] = func_formatter(function(win, range, pos)
+    local width = (win.options and win.options.colorcolumn ~= 0)
+        and (win.options.colorcolumn - 1)
+      or 72
+    local parts = {}
+    local fmt = nil
+    local summary = true
+    for line in win.file:lines_iterator() do
+      local txt = not line:match('^#')
+      if fmt == nil or fmt ~= txt then
+        fmt = txt and not summary
+        local prev = parts[#parts] and parts[#parts].finish or 0
+        parts[#parts + 1] = {
+          fmt = fmt,
+          start = prev,
+          finish = prev + #line + 1,
+        }
+        summary = summary and not txt
+      else
+        parts[#parts].finish = parts[#parts].finish + #line + 1
+      end
+    end
+    local out = ''
+    for _, part in ipairs(parts) do
+      if part.fmt then
+        local status, partout, err =
+          vis:pipe(win.file, part, 'fmt -w ' .. width)
+        if status ~= 0 then
+          return nil, err
+        end
+        out = out .. (partout or '')
+      else
+        out = out .. win.file:content(part)
+      end
+    end
+    return out
+  end, { ranged = false }),
   go = stdio_formatter('gofmt'),
   lua = {
     pick = function(win)
