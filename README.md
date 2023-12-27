@@ -50,14 +50,43 @@ The following methods and tables are fields of the table that is returned by
 `require('vis-format')` (e.g. `format`). You can use them to extend or
 configure `vis-format`.
 
+#### `formatters`
+
+A table containing the configured formatters. There are some predefined (see
+the list above under "Usage"), and you can add or override those by assigning
+your formatter to a key corresponding to the vis `syntax` it is relevant for.
+Each entry is of either of these forms:
+
+    {
+      apply = func(win, range, pos) end,
+      options = {
+        ranged = nil,
+        check_same = nil,
+      }
+    }
+
+or
+
+    {
+      pick = func(win, range, pos) end,
+    }
+
+The first form directly defines a formatter. An entry containing `pick` is
+executed and its result is directly used as a formatter. A recommended way to
+use `pick` is to return a different formatter from the `formatters` table. Note
+that using the vis `syntax` as keys in this table is only necessary for
+formatters that are run directly. This means that `lua` is a good key for a
+`pick` entry, which chooses between the formatters found at `stylua` and
+`luaformatter`.
+
 #### `stdio_formatter`
 
 The `stdio_formatter` function wraps the command to produce something like
 this:
 
     {
-        apply = function(win, range, pos) end,
-        options = { ranged = false, check_same = nil }
+      apply = function(win, range, pos) end,
+      options = { ranged = false }
     }
 
 The command given can also be a function, which is expected to return a string,
