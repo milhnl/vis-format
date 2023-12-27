@@ -99,10 +99,19 @@ of the statement containing it. This will not work with how `vis-format`
 currently applies the output. I have some ideas on how to fix this, but wanted
 to release what works first.
 
-#### Note on vis versions before 0.9
+#### Note on editor options and vis versions before 0.9
 
-The included formatter integrations assume that the `options` table in `vis`
-and `win` is present. If you use an older version, `vis-format` will still
-work, but can't detect your editor settings. To fix that, look at the
+`vis` has an `options` table with editor settings like tab width etc. built-in
+since 0.9. `vis-format` will not read this most of the time, because the
+correct way to configure formatters is with their dedicated configuration
+files, or `.editorconfig` (Which can be read in vis with
+[vis-editorconfig](https://github.com/seifferth/vis-editorconfig) and
+[vis-editorconfig-options](https://github.com/milhnl/vis-editorconfig-options)
+).
+
+The included formatter integrations that _do_ use this information assume that
+the `options` table in `vis` and `win` is present. If you use an older version,
+`vis-format` will still work, but can't detect your editor settings. To fix
+that, look at the
 [vis-options-backport](https://github.com/milhnl/vis-options-backport) plugin.
 This will 'polyfill' that for older versions.
