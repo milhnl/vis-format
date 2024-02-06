@@ -36,7 +36,8 @@ Currently, the following formatters are supported out-of-the-box.
   [PSScriptAnalyzer](https://learn.microsoft.com/en-gb/powershell/utility-modules/psscriptanalyzer/overview?view=ps-modules#installing-psscriptanalyzer)
   via `powershell.exe` in the WSL if available or `pwsh`.
 - `rust`: `rustfmt`
-- `text`: `fmt` like the `vis` default, but with width set if available
+- `text`: `fmt` with width based on colorcolumn if set, otherwise joined
+  paragraphs.
 
 I'm working on some more heuristics for detecting which formatter to use for
 languages without a 'blessed' formatter. In the meantime, this is how you add

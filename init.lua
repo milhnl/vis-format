@@ -153,7 +153,19 @@ formatters = {
     if win.options and win.options.colorcolumn ~= 0 then
       return 'fmt -w ' .. (win.options.colorcolumn - 1)
     else
-      return 'fmt'
+      return "fmt | awk -v n=-1 '"
+        .. '  {'
+        .. '    if ($0 == "") {'
+        .. '      n = n <= 0 ? 2 : 1'
+        .. '    } else {'
+        .. '      if (n == 0) sub(/^ */, "");'
+        .. '      n = 0;'
+        .. '    }'
+        .. '    printf("%s", $0 (n == 0 ? " " : ""));'
+        .. '    for(i = 0; i < n; i++)'
+        .. '      printf("\\n");'
+        .. '  }'
+        .. "'"
     end
   end, { ranged = false }),
 }
