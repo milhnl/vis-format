@@ -29,6 +29,9 @@ Currently, the following formatters are supported out-of-the-box.
   [LuaFormatter](https://github.com/Koihik/LuaFormatter), depending on which
   config file is in the working directory.
 - `markdown`: `prettier` with `--prose-wrap` enabled if `colorcolumn` is set.
+- `powershell`:
+  [PSScriptAnalyzer](https://learn.microsoft.com/en-gb/powershell/utility-modules/psscriptanalyzer/overview?view=ps-modules#installing-psscriptanalyzer)
+  via `powershell.exe` in the WSL if available or `pwsh`.
 - `rust`: `rustfmt`
 - `text`: `fmt` like the `vis` default, but with width set if available
 

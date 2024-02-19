@@ -69,6 +69,12 @@ formatters = {
         .. with_filename(win, '--stdin-filepath ')
     end
   end, { ranged = false }),
+  powershell = stdio_formatter([[
+    "$( (command -v powershell.exe || command -v pwsh) 2>/dev/null )" -c '
+        Invoke-Formatter  -ScriptDefinition `
+          ([IO.StreamReader]::new([Console]::OpenStandardInput()).ReadToEnd())
+      ' | sed -e :a -e '/^[\r\n]*$/{$d;N;};/\n$/ba'
+  ]]),
   rust = stdio_formatter('rustfmt'),
   stylua = stdio_formatter(function(win, range)
     if range and (range.start ~= 0 or range.finish ~= win.file.size) then
