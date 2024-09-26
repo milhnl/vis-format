@@ -111,12 +111,16 @@ formatters = {
   go = stdio_formatter('gofmt'),
   lua = {
     pick = function(win)
-      local status, out, err = vis:pipe(
-        win.file,
-        { start = 0, finish = win.file.size },
-        'test -e .lua-format && echo luaformatter || echo stylua'
-      )
-      return formatters[out:gsub('\n$', '')]
+      local fz = io.popen([[
+        test -e .lua-format && echo luaformatter || echo stylua
+      ]])
+      if fz then
+        local out = fz:read('*a')
+        local _, _, status = fz:close()
+        if status == 0 then
+          return formatters[out:gsub('\n$', '')]
+        end
+      end
     end,
   },
   luaformatter = stdio_formatter('lua-format'),
