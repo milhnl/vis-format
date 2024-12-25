@@ -4,6 +4,14 @@ local format = {
   },
 }
 
+local with_filename = function(win, option)
+  if win.file.path then
+    return option .. "'" .. win.file.path:gsub("'", "\\'") .. "'"
+  else
+    return ''
+  end
+end
+
 local win_formatter = function(func, options)
   return {
     apply = function(win, range, pos)
@@ -63,12 +71,18 @@ local stdio_formatter = function(cmd, options)
   end, options or { ranged = type(cmd) == 'function' })
 end
 
-local with_filename = function(win, option)
-  if win.file.path then
-    return option .. "'" .. win.file.path:gsub("'", "\\'") .. "'"
-  else
-    return ''
-  end
+local prettier_formatter = function(cmd, options)
+  return func_formatter(function(win, range, pos)
+    local command = type(cmd) == 'function' and cmd(win, range, pos) or cmd
+    command = command
+      .. ' '
+      .. with_filename(win, '--stdin-filepath ')
+    local status, out, err = vis:pipe(win.file, range, command)
+    if status ~= 0 then
+      return nil, err, nil
+    end
+    return out, nil, nil
+  end, options or { ranged = type(cmd) == 'function' })
 end
 
 local formatters = {}
@@ -139,14 +153,12 @@ formatters = {
     end,
   },
   luaformatter = stdio_formatter('lua-format'),
-  markdown = stdio_formatter(function(win)
+  markdown = prettier_formatter(function(win)
     if win.options and win.options.colorcolumn ~= 0 then
       return 'prettier --parser markdown --prose-wrap always '
-        .. ('--print-width ' .. (win.options.colorcolumn - 1) .. ' ')
-        .. with_filename(win, '--stdin-filepath ')
+        .. ('--print-width ' .. (win.options.colorcolumn - 1))
     else
-      return 'prettier --parser markdown '
-        .. with_filename(win, '--stdin-filepath ')
+      return 'prettier --parser markdown'
     end
   end, { ranged = false }),
   powershell = stdio_formatter(function(win)
