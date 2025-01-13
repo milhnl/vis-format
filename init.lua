@@ -1,5 +1,7 @@
-local global_options = {
-  check_same = true,
+local format = {
+  options = {
+    check_same = true,
+  },
 }
 
 local func_formatter = function(func, options)
@@ -11,7 +13,7 @@ local func_formatter = function(func, options)
     end
     local check_same = (options and options.check_same ~= nil)
         and options.check_same
-      or global_options.check_same
+      or format.options.check_same
     local check = check_same == true
       or (type(check_same) == 'number' and check_same >= size)
     out, err = func(win, range, pos)
@@ -215,10 +217,9 @@ local apply = function(file_or_keys, range, pos)
   return ret()
 end
 
-return {
-  formatters = formatters,
-  options = globalOptions,
-  apply = apply,
-  stdio_formatter = stdio_formatter,
-  with_filename = with_filename,
-}
+format.formatters = formatters
+format.apply = apply
+format.stdio_formatter = stdio_formatter
+format.with_filename = with_filename
+
+return format
