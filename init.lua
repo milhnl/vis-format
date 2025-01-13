@@ -12,6 +12,74 @@ local with_filename = function(win, option)
   end
 end
 
+local new_pos_heuristic = function(win, new, pos)
+  local new_size = #new
+  do -- Try creating a pattern that'll match one position in the new content
+    local converters = {
+      function(fragment)
+        return fragment
+          :gsub('([(%:)%:.%:%%:+%:-%:*%:?%:[%:^%:$])', '%%%1') -- all rgx chars
+          :gsub('(%S)%s+', '%1%%s*') -- only leading space literal, rest flex
+      end,
+      function(fragment)
+        return fragment
+          :gsub('^%s+', '') -- ignore leading space
+          :gsub('([(%:)%:.%:%%:+%:-%:*%:?%:[%:^%:$])', '%%%1') -- all rgx chars
+          :gsub('%s+', '%%s*') -- flexibly match all space
+      end,
+      function(fragment)
+        return fragment
+          :gsub('%W+', '%%W+') -- only match on alphanumerics
+          :gsub('^%%W%+', '') -- ignore non-alphanumerics at start
+      end,
+    }
+    local converter_index = 1
+    local fragment_size = 4
+    while
+      fragment_size <= 1024
+      and fragment_size <= (win.file.size - pos) * 2
+      and converter_index <= #converters
+    do
+      local pattern =
+        converters[converter_index](win.file:content(pos, fragment_size))
+      local new_pos = new:find(pattern)
+      if new_pos == nil then
+        converter_index = converter_index + 1
+      elseif -- pattern has 1 match, and it isn't too far away (false positive)
+        math.abs(new_pos - pos)
+          < (math.abs(new_size - win.file.size) * 10 + 30)
+        and new:find(pattern, new_pos + 1) == nil
+      then
+        return new_pos - 1
+      else
+        fragment_size = fragment_size * 2
+      end
+    end
+  end
+
+  do -- Try same offset of right side of the same line if # of lines matches
+    local new_pos, new_lines, new_line_start = nil, 1, nil
+    for i = 1, new_size do
+      if new:sub(i, i) == '\n' then
+        if new_lines == win.selection.line and new_line_start ~= nil then
+          local line_length = #win.file.lines[win.selection.line]
+          new_pos = i - line_length + win.selection.col - 2
+          new_pos = new_line_start < new_pos and new_pos or new_line_start
+        end
+        new_lines = new_lines + 1
+        if new_lines == win.selection.line then
+          new_line_start = i
+        end
+      end
+    end
+    if (new_lines - 1) == #win.file.lines then
+      return new_pos
+    end
+  end
+
+  return nil
+end
+
 local win_formatter = function(func, options)
   return {
     apply = function(win, range, pos)
@@ -52,6 +120,7 @@ local func_formatter = function(func, options)
     elseif out == nil or out == '' then
       return nil, 'No output from formatter', pos
     elseif not check or win.file:content(all) ~= out then
+      new_pos = new_pos or new_pos_heuristic(win, out, pos) or pos
       local start, finish = range.start, range.finish
       win.file:delete(range)
       win.file:insert(start, out:sub(start + 1, finish + (out:len() - size)))

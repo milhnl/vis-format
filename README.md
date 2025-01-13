@@ -130,6 +130,22 @@ it does not add any spaces to separate options/arguments.
 
 ### Bugs
 
+#### Possible cursor jumps
+
+You might see the cursor jump around when formatting. This should be very rare,
+as I have not seen it happen yet. Most formatters do not report the new cursor
+position, so there is a set of heuristics to avoid this. These heuristics might
+not always work perfectly, but I'd like to try to make them better.
+
+If you notice any jumps, please open an issue with the file and original cursor
+position.
+
+There is one situation that I do not consider a bug, and that's the cursor
+moving to the first non-whitespace character if the whitespace it is on
+changes.
+
+#### Ranged formatting
+
 Ranged formatting is not enabled and will currently not work with `prettier`.
 Prettier extends the range given on the command line to the beginning and end
 of the statement containing it. This will not work with how `vis-format`
