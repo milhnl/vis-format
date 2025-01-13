@@ -75,13 +75,14 @@ local prettier_formatter = function(cmd, options)
   return func_formatter(function(win, range, pos)
     local command = type(cmd) == 'function' and cmd(win, range, pos) or cmd
     command = command
-      .. ' '
-      .. with_filename(win, '--stdin-filepath ')
+      .. with_filename(win, ' --stdin-filepath ')
+      .. (' --cursor-offset ' .. pos)
     local status, out, err = vis:pipe(win.file, range, command)
     if status ~= 0 then
       return nil, err, nil
     end
-    return out, nil, nil
+    local new_pos = tonumber(err)
+    return out, nil, new_pos >= 0 and new_pos or nil
   end, options or { ranged = type(cmd) == 'function' })
 end
 
