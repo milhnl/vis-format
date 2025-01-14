@@ -200,6 +200,14 @@ local getwinforfile = function(file)
   end
 end
 
+local pick = function(win)
+  local formatter = formatters[win.syntax]
+  if formatter and formatter.pick then
+    formatter = formatter.pick(win)
+  end
+  return formatter
+end
+
 local apply = function(file_or_keys, range, pos)
   local win = type(file_or_keys) ~= 'string' and getwinforfile(file_or_keys)
     or vis.win
@@ -211,10 +219,7 @@ local apply = function(file_or_keys, range, pos)
       return 0
     end
   pos = pos or win.selection.pos
-  local formatter = formatters[win.syntax]
-  if formatter and formatter.pick then
-    formatter = formatter.pick(win)
-  end
+  local formatter = format.pick(win)
   if formatter == nil then
     vis:info('No formatter for ' .. win.syntax)
     return ret()
@@ -234,6 +239,7 @@ local apply = function(file_or_keys, range, pos)
 end
 
 format.formatters = formatters
+format.pick = pick
 format.apply = apply
 format.stdio_formatter = stdio_formatter
 format.with_filename = with_filename
