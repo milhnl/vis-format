@@ -6,6 +6,7 @@ local format = {
 
 local func_formatter = function(func, options)
   local apply = function(win, range, pos)
+    local out, err
     local size = win.file.size
     local all = { start = 0, finish = size }
     if range == nil then
@@ -16,7 +17,7 @@ local func_formatter = function(func, options)
       or format.options.check_same
     local check = check_same == true
       or (type(check_same) == 'number' and check_same >= size)
-    out, err = func(win, range, pos)
+    out, err, pos = func(win, range, pos)
     if err ~= nil then
       if err:match('\n') then
         vis:message(err)
@@ -31,7 +32,7 @@ local func_formatter = function(func, options)
       win.file:delete(range)
       win.file:insert(start, out:sub(start + 1, finish + (out:len() - size)))
     end
-    return pos
+    return nil, nil, pos
   end
   return {
     apply = apply,
@@ -44,9 +45,9 @@ local stdio_formatter = function(cmd, options)
     local command = type(cmd) == 'function' and cmd(win, range, pos) or cmd
     local status, out, err = vis:pipe(win.file, range, command)
     if status ~= 0 then
-      return nil, err
+      return nil, err, nil
     end
-    return out, nil
+    return out, nil, nil
   end, options or { ranged = type(cmd) == 'function' })
 end
 
