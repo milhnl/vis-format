@@ -4,8 +4,29 @@ local format = {
   },
 }
 
+local win_formatter = function(func, options)
+  return {
+    apply = function(win, range, pos)
+      if
+        range ~= nil
+        and not options.ranged
+        and range.start ~= 0
+        and range.finish ~= win.file.size
+      then
+        return nil,
+          'Formatter for ' .. win.syntax .. ' does not support ranges',
+          pos
+      end
+      local _, err, new_pos = func(win, range, pos)
+      vis:insert('') -- redraw and friends don't work
+      return nil, err, new_pos or pos
+    end,
+    options = options,
+  }
+end
+
 local func_formatter = function(func, options)
-  local apply = function(win, range, pos)
+  return win_formatter(function(win, range, pos)
     local out, err
     local size = win.file.size
     local all = { start = 0, finish = size }
@@ -19,25 +40,16 @@ local func_formatter = function(func, options)
       or (type(check_same) == 'number' and check_same >= size)
     out, err, pos = func(win, range, pos)
     if err ~= nil then
-      if err:match('\n') then
-        vis:message(err)
-      else
-        vis:info(err)
-      end
-      return
+      return nil, err, pos
     elseif out == nil or out == '' then
-      vis:info('No output from formatter')
+      return nil, 'No output from formatter', pos
     elseif not check or win.file:content(all) ~= out then
       local start, finish = range.start, range.finish
       win.file:delete(range)
       win.file:insert(start, out:sub(start + 1, finish + (out:len() - size)))
     end
     return nil, nil, pos
-  end
-  return {
-    apply = apply,
-    options = options,
-  }
+  end, options)
 end
 
 local stdio_formatter = function(cmd, options)
@@ -209,7 +221,8 @@ local pick = function(win)
   return formatter
 end
 
-local apply = function(file_or_keys, range, pos)
+local keyhandler = function(file_or_keys, range, pos)
+  local _, err
   local win = type(file_or_keys) ~= 'string' and getwinforfile(file_or_keys)
     or vis.win
   local ret = type(file_or_keys) ~= 'string'
@@ -225,23 +238,21 @@ local apply = function(file_or_keys, range, pos)
     vis:info('No formatter for ' .. win.syntax)
     return ret()
   end
-  if
-    range ~= nil
-    and not formatter.options.ranged
-    and range.start ~= 0
-    and range.finish ~= win.file.size
-  then
-    vis:info('Formatter for ' .. win.syntax .. ' does not support ranges')
-    return ret()
+  _, err, pos = formatter.apply(win, range, pos)
+  if err ~= nil then
+    if err:match('\n') then
+      vis:message(err)
+    else
+      vis:info(err)
+    end
   end
-  pos = formatter.apply(win, range, pos) or pos
   vis:insert('') -- redraw and friends don't work
   return ret()
 end
 
 format.formatters = formatters
 format.pick = pick
-format.apply = apply
+format.apply = keyhandler
 format.stdio_formatter = stdio_formatter
 format.with_filename = with_filename
 
