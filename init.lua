@@ -333,6 +333,29 @@ local keyhandler = function(file_or_keys, range, pos)
   return ret()
 end
 
+vis.events.subscribe(vis.events.FILE_SAVE_PRE, function(file)
+  local win = type(file) ~= 'string' and getwinforfile(file) or vis.win
+  local formatter = format.pick(win)
+  if formatter == nil then
+    return
+  end
+  local on_save = (formatter.options and formatter.options.on_save ~= nil)
+      and formatter.options.on_save
+    or format.options.on_save
+  if type(on_save) == 'function' and not on_save(win) then
+    return
+  elseif not on_save then
+    return
+  end
+  local _, err, pos = formatter.apply(win, nil, win.selection.pos)
+  if err ~= nil then
+    vis:info('Warning: formatting failed. Run manually for details')
+  else
+    win.selection.pos = pos
+    vis:insert('') -- redraw and friends don't work
+  end
+end)
+
 format.formatters = formatters
 format.pick = pick
 format.apply = keyhandler

@@ -81,7 +81,7 @@ formatters that are run directly. This means that `lua` is a good key for a
 `pick` entry, which chooses between the formatters found at `stylua` and
 `luaformatter`.
 
-#### `stdio_formatter`
+#### `stdio_formatter(command[, options])`
 
 The `stdio_formatter` function wraps the command to produce something like
 this:
@@ -123,10 +123,14 @@ it does not add any spaces to separate options/arguments.
 
 #### `options`
 
+The options listed here are also available in the options field of a formatter.
+
 - `options.check_same` (`boolean|number`) — After formatting, to avoid updating
   the file, `vis-format` can compare the old and the new. If this is set to a
-  number, that's the maximum size of the file for which it is enabled. This
-  option is also available in the per-formatter options.
+  number, that's the maximum size of the file for which it is enabled.
+- `options.on_save` (`boolean|function(win)`) — Enable a pre-save hook that
+  formats the file. If `on_save` is a function, it is run before saving to
+  determine whether formatting is required.
 
 ### Bugs
 
