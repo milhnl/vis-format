@@ -103,7 +103,6 @@ end
 
 local func_formatter = function(func, options)
   return win_formatter(function(win, range, pos)
-    local out, err
     local size = win.file.size
     local all = { start = 0, finish = size }
     if range == nil then
@@ -114,7 +113,8 @@ local func_formatter = function(func, options)
       or format.options.check_same
     local check = check_same == true
       or (type(check_same) == 'number' and check_same >= size)
-    out, err, pos = func(win, range, pos)
+
+    local out, err, new_pos = func(win, range, pos)
     if err ~= nil then
       return nil, err, pos
     elseif out == nil or out == '' then
@@ -125,7 +125,7 @@ local func_formatter = function(func, options)
       win.file:delete(range)
       win.file:insert(start, out:sub(start + 1, finish + (out:len() - size)))
     end
-    return nil, nil, pos
+    return nil, nil, new_pos
   end, options)
 end
 
@@ -312,9 +312,10 @@ local keyhandler = function(file_or_keys, range, pos)
         return pos
       end
     or function()
+      win.selection.pos = pos
       return 0
     end
-  pos = pos or win.selection.pos
+  pos = pos ~= nil and pos or win.selection.pos
   local formatter = format.pick(win)
   if formatter == nil then
     vis:info('No formatter for ' .. win.syntax)
