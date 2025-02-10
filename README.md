@@ -33,8 +33,9 @@ Currently, the following formatters are supported out-of-the-box.
   config file is in the working directory.
 - `markdown`: `prettier` with `--prose-wrap` enabled if `colorcolumn` is set.
 - `powershell`:
-  [PSScriptAnalyzer](https://learn.microsoft.com/en-gb/powershell/utility-modules/psscriptanalyzer/overview?view=ps-modules#installing-psscriptanalyzer)
-  via `powershell.exe` in the WSL if available or `pwsh`.
+  [PSScriptAnalyzer](https://learn.microsoft.com/en-gb/powershell/utility-modules/psscriptanalyzer/overview?view=ps-modules#installing-psscriptanalyzer).
+  via `powershell.exe` in the WSL if available or `pwsh`. It does not support a
+  configuration file, so `win.options` is used.
 - `rust`: `rustfmt`
 - `text`: `fmt` with width based on colorcolumn if set, otherwise joined
   paragraphs.

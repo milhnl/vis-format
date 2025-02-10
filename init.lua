@@ -136,12 +136,28 @@ formatters = {
         .. with_filename(win, '--stdin-filepath ')
     end
   end, { ranged = false }),
-  powershell = stdio_formatter([[
-    "$( (command -v powershell.exe || command -v pwsh) 2>/dev/null )" -c '
-        Invoke-Formatter  -ScriptDefinition `
+  powershell = stdio_formatter(function(win)
+    local indent_style = win.options.expandtab and 'space' or 'tab'
+    return [[
+      (set -o pipefail 2>/dev/null) && set -o pipefail
+      sed 's/\r$//' \
+        | "$( (command -v powershell.exe || command -v pwsh) 2>/dev/null)" -c '
+          Invoke-Formatter -Settings @{
+            Rules = @{
+              PSAvoidTrailingWhitespace = @{ Enable = $true };
+              PSUseConsistentWhitespace = @{ Enable = $true };
+              PSUseConsistentIndentation = @{
+                Enable = $true;
+                IndentationSize = ]] .. win.options.tabwidth .. [[;
+                Kind = "]] .. indent_style .. [[";
+              };
+            };
+          } -ScriptDefinition `
           ([IO.StreamReader]::new([Console]::OpenStandardInput()).ReadToEnd())
-      ' | sed -e :a -e '/^[\r\n]*$/{$d;N;};/\n$/ba'
-  ]]),
+        ' \
+        | sed -e :a -e '/^\(\r\{0,1\}\n\)*$/{$d;N;};/\n$/ba'
+    ]]
+  end, { ranged = false }),
   rust = stdio_formatter('rustfmt'),
   stylua = stdio_formatter(function(win, range)
     if range and (range.start ~= 0 or range.finish ~= win.file.size) then
