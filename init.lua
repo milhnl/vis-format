@@ -253,7 +253,17 @@ formatters = {
         | sed -e :a -e '/^\(\r\{0,1\}\n\)*$/{$d;N;};/\n$/ba'
     ]]
   end, { ranged = false }),
-  rust = stdio_formatter('rustfmt'),
+  rust = stdio_formatter([[
+    edition="$(
+      cargo metadata --format-version=1 --no-deps 2>/dev/null \
+        | sed -E 's/.*"edition":"([^"]*)".*/\1/'
+    )"
+    if [ -n "$edition" ]; then
+      rustfmt --edition "$edition"
+    else
+      rustfmt
+    fi
+  ]]),
   stylua = stdio_formatter(function(win, range)
     if range and (range.start ~= 0 or range.finish ~= win.file.size) then
       return 'stylua -s --range-start '
