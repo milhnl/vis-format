@@ -157,8 +157,12 @@ end
 
 local formatters = {}
 formatters = {
+  autopep8 = stdio_formatter('autopep8 -'),
   bash = stdio_formatter(function(win)
     return 'shfmt ' .. with_filename(win, '--filename ') .. ' -'
+  end),
+  black = stdio_formatter(function(win)
+    return 'black -q' .. with_filename(win, ' --stdin-filename ') .. ' -'
   end),
   csharp = stdio_formatter('dotnet csharpier'),
   diff = {
@@ -253,6 +257,40 @@ formatters = {
         | sed -e :a -e '/^\(\r\{0,1\}\n\)*$/{$d;N;};/\n$/ba'
     ]]
   end, { ranged = false }),
+  python = {
+    pick = function(win)
+      local fz = io.popen([[
+        if [ -e pyproject.toml ]; then
+          <pyproject.toml sed -n '
+            s/^\[tool.yapf\]$/yapf/;
+            s/^\[tool.black\]$/black/;
+            s/^\[tool.autopep8\]$/autopep8/;
+            s/^\[tool.ruff\]$/ruff/;
+            t quit
+            d
+            :quit
+            p;q
+          '
+        elif [ -e ruff.toml ]; then
+          echo ruff
+        elif [ -e .style.yapf ]; then
+          echo yapf
+        fi
+      ]])
+      if fz then
+        local out = fz:read('*a')
+        local _, _, status = fz:close()
+        if status == 0 then
+          return formatters[out:gsub('\n$', '')]
+        end
+      end
+    end,
+  },
+  ruff = stdio_formatter(function(win)
+    return 'ruff format --quiet'
+      .. with_filename(win, ' --stdin-filename ')
+      .. ' -'
+  end),
   rust = stdio_formatter([[
     edition="$(
       cargo metadata --format-version=1 --no-deps 2>/dev/null \
@@ -295,6 +333,7 @@ formatters = {
         .. "'"
     end
   end, { ranged = false }),
+  yapf = stdio_formatter('yapf'),
 }
 
 local getwinforfile = function(file)

@@ -36,6 +36,11 @@ Currently, the following formatters are supported out-of-the-box.
   [PSScriptAnalyzer](https://learn.microsoft.com/en-gb/powershell/utility-modules/psscriptanalyzer/overview?view=ps-modules#installing-psscriptanalyzer).
   via `powershell.exe` in the WSL if available or `pwsh`. It does not support a
   configuration file, so `win.options` is used.
+- `python`: [autopep8](https://pypi.org/project/autopep8/),
+  [black](https://pypi.org/project/black/),
+  [ruff](https://docs.astral.sh/ruff/) or
+  [yapf](https://github.com/google/yapf) depending on the first `tool.*`
+  matching one of these tools found in `pyproject.toml`.
 - `rust`: `rustfmt`
 - `text`: `fmt` with width based on colorcolumn if set, otherwise joined
   paragraphs.
