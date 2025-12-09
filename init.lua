@@ -262,10 +262,10 @@ formatters = {
       local fz = io.popen([[
         if [ -e pyproject.toml ]; then
           <pyproject.toml sed -n '
-            s/^\[tool.yapf\]$/yapf/;
-            s/^\[tool.black\]$/black/;
-            s/^\[tool.autopep8\]$/autopep8/;
-            s/^\[tool.ruff\]$/ruff/;
+            s/^\[tool\.yapf\]$/yapf/;
+            s/^\[tool\.black\]$/black/;
+            s/^\[tool\.autopep8\]$/autopep8/;
+            s/^\[tool\.ruff\(\.format\)\{0,1\}\]$/ruff/;
             t quit
             d
             :quit
