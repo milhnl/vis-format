@@ -6,7 +6,7 @@ local format = {
 
 local with_filename = function(win, option)
   if win.file.path then
-    return option .. "'" .. win.file.path:gsub("'", "\\'") .. "'"
+    return option .. "'" .. win.file.path:gsub("'", "'\\''") .. "'"
   else
     return ''
   end
