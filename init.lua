@@ -351,7 +351,7 @@ end
 
 local pick = function(win)
   local formatter = formatters[win.syntax]
-  if formatter and formatter.pick then
+  while formatter and formatter.pick do
     formatter = formatter.pick(win)
   end
   return formatter
