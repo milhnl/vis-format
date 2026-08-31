@@ -164,7 +164,9 @@ formatters = {
   black = stdio_formatter(function(win)
     return 'black -q' .. with_filename(win, ' --stdin-filename ') .. ' -'
   end),
-  csharp = stdio_formatter('dotnet csharpier'),
+  csharp = stdio_formatter(function(win)
+    return 'dotnet csharpier format' .. with_filename(win, ' --stdin-path ')
+  end),
   diff = {
     pick = function(win)
       if (win.file.name or ''):match('COMMIT_EDITMSG$') then
