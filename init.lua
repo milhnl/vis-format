@@ -314,6 +314,11 @@ formatters = {
       return 'stylua -s ' .. with_filename(win, '--stdin-filepath ') .. ' -'
     end
   end),
+  swift = stdio_formatter(function(win)
+    return 'swift-format format'
+      .. format.with_filename(win, ' --assume-filename ')
+      .. ' -'
+  end),
   text = stdio_formatter(function(win)
     if win.options and win.options.colorcolumn ~= 0 then
       return 'fmt -w ' .. (win.options.colorcolumn - 1)

@@ -42,6 +42,7 @@ Currently, the following formatters are supported out-of-the-box.
   [yapf](https://github.com/google/yapf) depending on the first `tool.*`
   matching one of these tools found in `pyproject.toml`.
 - `rust`: `rustfmt`
+- `swift`: `swift-format`
 - `text`: `fmt` with width based on colorcolumn if set, otherwise joined
   paragraphs.
 
