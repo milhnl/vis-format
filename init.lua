@@ -167,10 +167,8 @@ formatters = {
   csharp = stdio_formatter('dotnet csharpier'),
   diff = {
     pick = function(win)
-      for _, pattern in ipairs(vis.ftdetect.filetypes['git-commit'].ext) do
-        if ((win.file.name or ''):match('[^/]+$') or ''):match(pattern) then
-          return formatters['git-commit']
-        end
+      if (win.file.name or ''):match('COMMIT_EDITMSG$') then
+        return formatters['git-commit']
       end
     end,
   },
