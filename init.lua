@@ -319,7 +319,17 @@ formatters = {
       .. format.with_filename(win, ' --assume-filename ')
       .. ' -'
   end),
-  text = stdio_formatter(function(win)
+  hcl = stdio_formatter('terraform fmt -'),
+  text = {
+    pick = function(win)
+      local ext = (win.file.name or ''):match('%.([^%.]+)$')
+      if ext == 'tf' or ext == 'tfvars' or ext == 'hcl' then
+        return format.formatters['hcl']
+      end
+      return format.formatters['fmt']
+    end,
+  },
+  fmt = stdio_formatter(function(win)
     if win.options and win.options.colorcolumn ~= 0 then
       return 'fmt -w ' .. (win.options.colorcolumn - 1)
     else
